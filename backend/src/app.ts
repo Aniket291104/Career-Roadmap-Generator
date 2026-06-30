@@ -1,3 +1,4 @@
+import './config/env';
 import express, { Request, Response, NextFunction } from 'express';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
@@ -6,7 +7,8 @@ import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
+
+
 import { connectDB } from './config/db';
 import redis from './config/redis';
 
@@ -27,7 +29,8 @@ import contactRoutes from './routes/contact.routes';
 import codingRoutes from './routes/coding-assessment.routes';
 
 // Load environment variables
-dotenv.config();
+
+
 
 const app = express();
 const server = http.createServer(app);
