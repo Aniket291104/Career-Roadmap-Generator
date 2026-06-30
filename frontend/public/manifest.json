@@ -1,0 +1,16 @@
+{
+  "name": "AI Career Roadmap Generator",
+  "short_name": "CareerAI",
+  "description": "Enterprise-grade AI-powered career roadmaps, weekly learning plans, and mock interviews tracker.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#8b5cf6",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/clouds/500/route.png",
+      "sizes": "500x500",
+      "type": "image/png"
+    }
+  ]
+}

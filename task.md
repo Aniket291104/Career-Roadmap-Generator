@@ -1,0 +1,41 @@
+# Implementation Progress Checklist
+
+- [x] **Phase 1: Project Scopes & Initial monorepo configuration**
+  - [x] Set up monorepo folders (/backend and /frontend)
+  - [x] Verify tsconfig rules and module resolution packages
+- [x] **Phase 2: Database Schema & Mongoose Models**
+  - [x] Write all 12 schema validation profiles
+  - [x] Map typescript types to mongoose document shapes
+- [x] **Phase 3: Backend REST APIs & Services**
+  - [x] Implement AI service with JSON schema guidelines
+  - [x] Wrote auth signup, OTP check, password flow controllers
+  - [x] Developed roadmaps, tasks, resume and interview routes
+- [x] **Phase 4: Security & Middlewares**
+  - [x] Apply security headers, rate limiting, and parameter sanitization
+  - [x] Set up CORS and cookie-based JWT parser
+  - [x] Build Role-Based Access Control logic
+- [x] **Phase 5: Frontend Design System & Common UI**
+  - [x] Initialize Tailwind palette, global styles, and dark theme variables
+  - [x] Create Radix/Shadcn + Framer Motion components
+  - [x] Implement animated hero background and main header
+- [x] **Phase 6: Shell Pages & Authentication Forms**
+  - [x] Build Landing Page sections (Hero, Navbar, Features, Categories, Pricing, FAQ, Footer)
+  - [x] Design Register, Login, Verify Email, Forgot Password pages
+- [x] **Phase 7: AI & Main Dashboard Pages**
+  - [x] Build user Dashboard (analytics widgets, heatmaps, streaks, LeetCode Solved index)
+  - [x] Develop Career Assessment Quiz interface
+  - [x] Implement interactive Roadmap timeline visualizer with Calendar Sync & Adapt Roadmap
+  - [x] Design Resume Analyzer dashboard with ATS scores and PDF download
+  - [x] Build Github Portfolio Analyzer interface fetching real GitHub repos
+  - [x] Create Chatbot workspace window with syntax highlighter
+  - [x] Create Mock Interview interface with simulated camera/audio triggers
+- [x] **Phase 8: Gamification & Admin Dashboards**
+  - [x] Add Leaderboards and achievements list
+  - [x] Design Admin metrics panel, user logs, and roles editor
+- [x] **Phase 9: Verification & Automated Testing**
+  - [x] Verify security rules (CORS, JWT cookies, validation)
+  - [x] Verify compile safety of both backend and frontend layers
+- [x] **Phase 10: Production Setup & Deployments**
+  - [x] Create Docker + Docker Compose setups
+  - [x] Configure Github Actions CI Build Pipeline
+  - [x] Verify build correctness for frontend and backend
