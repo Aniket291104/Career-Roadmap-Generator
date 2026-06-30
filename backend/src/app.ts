@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db';
-import { cache } from './config/redis';
+import redis from './config/redis';
 
 // Route Imports
 import authRoutes from './routes/auth.routes';
@@ -126,7 +126,13 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   await connectDB();
-  await cache.connect();
+  
+  try {
+    await redis.connect();
+    console.log('Redis Connected');
+  } catch (err) {
+    console.warn('Failed to connect to Redis. Continuing without caching.', err);
+  }
   
   server.listen(PORT, () => {
     console.log(`Server listening on port ${PORT} in ${process.env.NODE_ENV} mode.`);
