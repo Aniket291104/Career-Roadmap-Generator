@@ -244,28 +244,33 @@ export class AIService {
    */
   static async handleMockInterview(
     sessionHistory: { role: 'interviewer' | 'candidate'; content: string }[],
-    type: 'technical' | 'hr' | 'behavioral' | 'coding',
-    roleGoal: string
+    type: string,
+    company: string = 'Google',
+    difficulty: string = 'FAANG',
+    mode: string = 'strict'
   ): Promise<string> {
     if (isMock || !ai) {
       if (sessionHistory.length === 0) {
-        return `Hello! Welcome to your mock ${type} interview for the role of ${roleGoal}. Let's get started. Could you briefly introduce yourself and share your experience working with core technologies in this field?`;
+        return `Hello! Welcome to your mock ${type} interview with ${company} at ${difficulty} level. I am a Senior Software Engineer here, and I'll be guiding you today. Let's start with a brief overview of your background.`;
       }
       const lastAnswer = sessionHistory[sessionHistory.length - 1].content;
-      return `Thank you for sharing. Regarding your answer: "${lastAnswer.slice(0, 50)}...", could you explain how you would scale that implementation if traffic increased by 10x? What caching or database optimization patterns would you adopt?`;
+      return `Thanks for that explanation. Now, let's discuss how we would design or implement this for scaling. What happens if traffic grows by 10x? What bottlenecks do you foresee?`;
     }
 
     const conversationPrompt = sessionHistory.map(m => `${m.role === 'interviewer' ? 'Interviewer' : 'Candidate'}: ${m.content}`).join('\n');
 
     const prompt = `
-      You are conducting a live mock interview.
-      Interview type: ${type}
-      Target role: ${roleGoal}
+      You are a Senior Software Engineer and Architect conducting a mock technical interview at ${company}.
+      Interview Type/Focus: ${type}
+      Difficulty: ${difficulty}
+      Mode: ${mode}
 
-      Here is the interview history so far:
+      Here is the dialogue history of our conversation so far:
       ${conversationPrompt}
 
-      Please write the NEXT interviewer question or comment. Be conversational, encouraging but professional, acting as a tech lead or senior HR specialist. Keep the response to 1-2 paragraphs.
+      Act strictly as the AI interviewer. Write the next logical interviewer statement or follow-up question.
+      Make sure to ask questions that never repeat, probe for technical depth, cover coding, behavioral, or system design scenarios based on the interview flow, and dynamically ask for optimization details.
+      Keep it conversational and output ONLY the interviewer's direct spoken question without labels. Limit it to 1-2 concise paragraphs.
     `;
 
     try {
@@ -290,31 +295,40 @@ export class AIService {
   static async evaluateMockInterview(
     sessionHistory: { role: 'interviewer' | 'candidate'; content: string }[],
     type: string,
-    roleGoal: string
+    company: string = 'Google',
+    difficulty: string = 'FAANG'
   ): Promise<any> {
     if (isMock || !ai) {
       return {
         overallScore: 84,
-        grammarRating: 90,
-        technicalRating: 80,
-        behavioralRating: 85,
-        feedback: `### Performance Summary\n\n- **Strengths**: Explained architectural concepts clearly. Strong grasp of JavaScript event loop details.\n- **Areas for Improvement**: Work on structured replies (STAR method). Highlight unit testing strategies when discussing database scripts.`,
+        subScores: {
+          coding: 82,
+          communication: 88,
+          confidence: 85,
+          technical: 80,
+          behavior: 85,
+        },
+        feedback: `### Mock Interview Report\n\n- **Company**: ${company}\n- **Difficulty**: ${difficulty}\n\n#### Strengths\n- Strong algorithm choices.\n- Great communication style.\n\n#### Weaknesses\n- Avoid simple naming bugs.\n- Improve optimization scaling metrics.`,
       };
     }
 
     const conversationPrompt = sessionHistory.map(m => `${m.role === 'interviewer' ? 'Interviewer' : 'Candidate'}: ${m.content}`).join('\n');
 
     const prompt = `
-      Analyze this full mock interview transcript for a "${roleGoal}" position (${type} interview):
+      Analyze this full mock interview transcript for a "${type}" position at "${company}" with a "${difficulty}" difficulty level:
       ${conversationPrompt}
 
       Provide a comprehensive candidate evaluation. You must respond with a valid JSON object matching this schema:
       {
         "overallScore": 82, // 0 to 100
-        "grammarRating": 85, // 0 to 100
-        "technicalRating": 80, // 0 to 100
-        "behavioralRating": 82, // 0 to 100
-        "feedback": "Markdown evaluation describing strengths, weaknesses, and concrete learning tasks"
+        "subScores": {
+          "coding": 80, // 0 to 100
+          "communication": 85, // 0 to 100
+          "confidence": 82, // 0 to 100
+          "technical": 80, // 0 to 100
+          "behavior": 88 // 0 to 100
+        },
+        "feedback": "A beautiful Markdown candidate summary listing: overall rating, strengths, weaknesses, mistakes, correct answers, better optimal solutions, recommendations (projects, courses), and learning paths."
       }
     `;
 
@@ -335,9 +349,13 @@ export class AIService {
       console.error('Gemini Interview Evaluation Error:', error);
       return {
         overallScore: 75,
-        grammarRating: 75,
-        technicalRating: 75,
-        behavioralRating: 75,
+        subScores: {
+          coding: 70,
+          communication: 75,
+          confidence: 75,
+          technical: 75,
+          behavior: 75,
+        },
         feedback: 'Evaluation complete. Candidate answers show a basic understanding, but could benefit from explaining scaling, edge cases, and design choices.',
       };
     }
