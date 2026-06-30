@@ -30,6 +30,7 @@ services:
       - JWT_ACCESS_SECRET=docker_jwt_access_secret_12345
       - JWT_REFRESH_SECRET=docker_jwt_refresh_secret_67890
       - CLIENT_URL=http://localhost:3000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       - mongodb
       - redis
