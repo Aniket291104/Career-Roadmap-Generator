@@ -6,7 +6,19 @@ import { motion } from 'framer-motion';
 import { Sun, Moon } from 'lucide-react';
 
 export function ThemeSwitcher() {
+  const [mounted, setMounted] = React.useState(false);
   const { theme, setTheme, resolvedTheme } = useTheme();
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="w-10 h-10 rounded-xl border border-border bg-card/40 shrink-0" />
+    );
+  }
+
   const currentTheme = theme === 'system' ? resolvedTheme : theme;
 
   const toggleTheme = () => {
@@ -16,7 +28,7 @@ export function ThemeSwitcher() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2.5 rounded-xl border border-border bg-card/40 hover:bg-muted/40 transition-colors relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary/40"
+      className="p-2.5 rounded-xl border border-border bg-card/40 hover:bg-muted/40 transition-colors relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer shrink-0"
       aria-label="Toggle Theme"
       id="theme-switcher-btn"
     >

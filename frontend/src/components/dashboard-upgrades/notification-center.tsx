@@ -168,7 +168,7 @@ export function NotificationCenter() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-3 w-[360px] sm:w-[400px] rounded-2xl glass-panel shadow-2xl border border-border overflow-hidden z-50 flex flex-col"
+            className="absolute right-0 mt-3 w-[360px] sm:w-[400px] rounded-2xl bg-card/95 backdrop-blur-xl shadow-2xl border border-border overflow-hidden z-50 flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-card/45 border-b border-border/40 select-none">

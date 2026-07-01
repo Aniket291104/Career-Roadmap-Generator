@@ -33,7 +33,7 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#8b5cf6" />
-        <link rel="apple-touch-icon" href="https://img.icons8.com/clouds/500/route.png" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
       <body className={`${outfit.variable} antialiased bg-background text-foreground`}>
         <QueryProvider>
