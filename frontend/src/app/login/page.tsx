@@ -40,6 +40,10 @@ export default function LoginPage() {
         toast.info(res.data.message);
         router.push(`/verify-otp?email=${encodeURIComponent(res.data.email)}`);
       } else {
+        if (typeof window !== 'undefined') {
+          if (res.data.accessToken) localStorage.setItem('accessToken', res.data.accessToken);
+          if (res.data.refreshToken) localStorage.setItem('refreshToken', res.data.refreshToken);
+        }
         setUser(res.data.user);
         toast.success('Successfully logged in!');
         router.push('/dashboard');
@@ -56,6 +60,10 @@ export default function LoginPage() {
     try {
       // Direct mock Google login callback for easy user testing
       const res = await api.post('/auth/google', { credential: 'mock_google_token' });
+      if (typeof window !== 'undefined') {
+        if (res.data.accessToken) localStorage.setItem('accessToken', res.data.accessToken);
+        if (res.data.refreshToken) localStorage.setItem('refreshToken', res.data.refreshToken);
+      }
       setUser(res.data.user);
       toast.success('Google login successful!');
       router.push('/dashboard');

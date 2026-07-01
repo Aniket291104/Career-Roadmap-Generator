@@ -35,10 +35,33 @@ import codingRoutes from './routes/coding-assessment.routes';
 const app = express();
 const server = http.createServer(app);
 
+// Helper for dynamic CORS checking
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:3001',
+];
+
+const checkOrigin = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  if (!origin) {
+    return callback(null, true);
+  }
+  const clientUrl = process.env.CLIENT_URL;
+  const isVercel = origin.endsWith('.vercel.app') || origin.includes('vercel.app');
+  const isAllowedLocal = allowedOrigins.includes(origin) || /^http:\/\/localhost:\d+$/.test(origin);
+  const isClientUrl = clientUrl && origin === clientUrl;
+
+  if (isVercel || isAllowedLocal || isClientUrl) {
+    callback(null, true);
+  } else {
+    callback(null, false);
+  }
+};
+
 // Socket.io initialization
 const io = new SocketIOServer(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: checkOrigin,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   },
@@ -54,9 +77,10 @@ app.use((req: any, res: Response, next: NextFunction) => {
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: checkOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    exposedHeaders: ['x-new-access-token'],
   })
 );
 app.use(compression());

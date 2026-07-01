@@ -10,23 +10,58 @@ export const api = axios.create({
   },
 });
 
-// Intercept responses to handle auth errors
+// Request Interceptor: Attach bearer and refresh token headers if present in localStorage
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    if (refreshToken) {
+      config.headers['x-refresh-token'] = refreshToken;
+    }
+  }
+  return config;
+});
+
+// Intercept responses to handle auth errors and update rotated tokens
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Save rotated access token if returned in response headers
+    if (typeof window !== 'undefined' && response.headers) {
+      const newAccessToken = response.headers['x-new-access-token'];
+      if (newAccessToken) {
+        localStorage.setItem('accessToken', newAccessToken);
+      }
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
     
-    // If unauthorized and we haven't retried yet, the backend auto-refreshes tokens if cookie is set.
-    // If it still returns 401, redirect to login.
+    // Catch rotated access token if returned in response/error headers
+    if (typeof window !== 'undefined' && error.response?.headers) {
+      const newAccessToken = error.response.headers['x-new-access-token'];
+      if (newAccessToken) {
+        localStorage.setItem('accessToken', newAccessToken);
+        if (originalRequest && originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        }
+      }
+    }
+    
+    // If unauthorized and we haven't retried yet, retry the request
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      // Let the browser retry once since authenticateJWT middleware rotations happen automatically
       try {
         return await api(originalRequest);
       } catch (err) {
         if (typeof window !== 'undefined') {
           // If login page is not current, clear local user details and redirect
           if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register') && window.location.pathname !== '/') {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
             window.location.href = '/login?expired=true';
           }
         }

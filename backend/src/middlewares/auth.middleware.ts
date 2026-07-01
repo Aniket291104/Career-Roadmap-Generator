@@ -20,7 +20,7 @@ export const authenticateJWT = async (
 
   if (!accessToken) {
     // If access token is missing, attempt rotation via refresh token
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies.refreshToken || (req.headers['x-refresh-token'] as string);
     if (!refreshToken) {
       res.status(401).json({ message: 'Unauthorized. Authentication tokens missing.' });
       return;
@@ -34,6 +34,7 @@ export const authenticateJWT = async (
       });
 
       sendTokenCookies(res, newAccessToken, refreshToken);
+      res.setHeader('x-new-access-token', newAccessToken);
       req.user = { userId: decodedRefresh.userId, role: decodedRefresh.role };
       return next();
     } catch (refreshErr) {
@@ -49,7 +50,7 @@ export const authenticateJWT = async (
   } catch (err: any) {
     // Token might be expired, check refresh token
     if (err.name === 'TokenExpiredError') {
-      const refreshToken = req.cookies.refreshToken;
+      const refreshToken = req.cookies.refreshToken || (req.headers['x-refresh-token'] as string);
       if (!refreshToken) {
         res.status(401).json({ message: 'Unauthorized. Session expired.' });
         return;
@@ -63,6 +64,7 @@ export const authenticateJWT = async (
         });
 
         sendTokenCookies(res, newAccessToken, refreshToken);
+        res.setHeader('x-new-access-token', newAccessToken);
         req.user = { userId: decodedRefresh.userId, role: decodedRefresh.role };
         return next();
       } catch (refreshErr) {

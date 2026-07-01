@@ -49,6 +49,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         const res = await api.get('/auth/me');
         setUser(res.data.user);
       } catch (err) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+        }
         logout();
         router.push('/login');
       }
@@ -77,11 +81,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout');
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      }
       logout();
       toast.success('Successfully logged out.');
       router.push('/login');
     } catch (error) {
-      toast.error('Logout failed.');
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      }
+      logout();
+      toast.success('Logged out.');
+      router.push('/login');
     }
   };
 

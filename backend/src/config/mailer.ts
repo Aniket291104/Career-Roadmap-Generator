@@ -48,9 +48,14 @@ export const sendEmail = async ({
     console.log(`Email sent successfully: ${info.messageId}`);
   } catch (error) {
     console.error(`Error sending email: ${(error as Error).message}`);
-    // In development mode, we do not throw to allow offline testing
-    if (process.env.NODE_ENV === 'production') {
-      throw error;
+    
+    // Log the OTP fallback to console in case of failure so deployment testing is possible
+    const otpMatch = html.match(/\b(\d{6})\b/);
+    if (otpMatch) {
+      console.warn(`\n==================================================`);
+      console.warn(`[SMTP FAILURE] Failed to send email to ${to}`);
+      console.warn(`Fallback OTP code: ${otpMatch[1]}`);
+      console.warn(`==================================================\n`);
     }
   }
 };

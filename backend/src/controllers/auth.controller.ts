@@ -128,6 +128,8 @@ export class AuthController {
 
       res.status(200).json({
         message: 'Account verified successfully',
+        accessToken,
+        refreshToken,
         user: {
           id: user._id,
           name: user.name,
@@ -196,6 +198,8 @@ export class AuthController {
 
       res.status(200).json({
         message: 'Login successful',
+        accessToken,
+        refreshToken,
         user: {
           id: user._id,
           name: user.name,
@@ -345,6 +349,8 @@ export class AuthController {
 
       res.status(200).json({
         message: 'Google Login successful',
+        accessToken,
+        refreshToken,
         user: {
           id: user._id,
           name: user.name,

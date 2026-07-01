@@ -50,6 +50,10 @@ function VerifyOtpContent() {
         email,
         otp: data.otp,
       });
+      if (typeof window !== 'undefined') {
+        if (res.data.accessToken) localStorage.setItem('accessToken', res.data.accessToken);
+        if (res.data.refreshToken) localStorage.setItem('refreshToken', res.data.refreshToken);
+      }
       setUser(res.data.user);
       toast.success('Account verified successfully!');
       router.push('/dashboard');
