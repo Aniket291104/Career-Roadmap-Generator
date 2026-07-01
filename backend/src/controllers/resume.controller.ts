@@ -18,25 +18,9 @@ export class ResumeController {
       }
 
       const originalName = req.file.originalname;
-      
-      // Simple text extraction from buffer (supporting plain text, and basic ASCII strip for PDF buffers)
-      let parsedText = '';
-      if (req.file.mimetype === 'text/plain') {
-        parsedText = req.file.buffer.toString('utf-8');
-      } else {
-        // Strip readable ASCII characters from PDF buffer as a basic fallback parser
-        const rawBufferStr = req.file.buffer.toString('ascii');
-        parsedText = rawBufferStr
-          .replace(/[^\x20-\x7E\s]/g, '') // remove non-printable characters
-          .slice(0, 5000); // limit to first 5k characters to keep prompts clean
-      }
 
-      if (parsedText.length < 50) {
-        parsedText = `Developer profile resume named ${originalName}. Core targets include Full Stack Software Engineering.`;
-      }
-
-      // Analyze using AIService
-      const feedback = await AIService.analyzeResume(parsedText);
+      // Analyze using AIService directly passing the buffer and mimetype
+      const feedback = await AIService.analyzeResume(req.file.buffer, req.file.mimetype);
 
       // Create record
       const resumeAnalysis = await Resume.create({

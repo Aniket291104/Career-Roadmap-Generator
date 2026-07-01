@@ -110,37 +110,53 @@ export class AIService {
   /**
    * Evaluates candidate resume for ATS alignment
    */
-  static async analyzeResume(resumeText: string): Promise<any> {
+  static async analyzeResume(fileBuffer: Buffer, mimeType: string): Promise<any> {
     if (isMock || !ai) {
       console.log('Using mock resume analyzer...');
       return {
-        atsScore: 78,
-        missingSkills: ['Redis', 'Docker', 'CI/CD Pipelines'],
-        missingKeywords: ['Scale', 'System Architecture', 'Latency Optimizations'],
-        suggestions: `### Key Recommendations\n\n1. **Incorporate Missing Technologies**: Add experience logs relating to caching (Redis) or containerization.\n2. **Metrics-Driven Bulletpoints**: Quantify accomplishments (e.g. *improved latency by 35%*).\n3. **Formatting**: Ensure single-column structure for parser safety.`,
+        atsScore: 85,
+        missingSkills: ['System Design', 'Docker', 'Kubernetes'],
+        missingKeywords: ['CI/CD', 'Microservices', 'Unit Testing'],
+        suggestions: `### ATS Resume Enhancements\n\n- **Add Technical Projects**: Mention projects using Node.js and React.\n- **Quantify Impact**: Use numbers like "optimized db queries by 40%".\n- **Format Header**: Ensure your GitHub and email links are easily parseable by ATS.`,
       };
     }
 
-    const prompt = `
-      Analyze this parsed resume text:
-      "${resumeText}"
+    const contents: any[] = [];
+    if (mimeType === 'text/plain') {
+      contents.push(`Here is the candidate's resume text:\n\n${fileBuffer.toString('utf-8')}`);
+    } else if (mimeType === 'application/pdf') {
+      contents.push({
+        inlineData: {
+          data: fileBuffer.toString('base64'),
+          mimeType: 'application/pdf',
+        },
+      });
+      contents.push("Here is the candidate's resume PDF file.");
+    } else {
+      contents.push(`Here is the candidate's resume content:\n\n${fileBuffer.toString('utf-8')}`);
+    }
 
-      Provide an ATS review. You must respond with a valid JSON object matching this schema:
+    contents.push(`
+      Evaluate the provided resume for ATS (Applicant Tracking System) compatibility. 
+      Recommend specific improvements, list missing critical keywords/skills for generic Software Engineering roles, 
+      and calculate an overall ATS score (out of 100) based strictly on this resume content.
+
+      Return a JSON conforming to:
       {
-        "atsScore": 85, // number from 0 to 100
-        "missingSkills": ["Docker", "Kubernetes"],
-        "missingKeywords": ["Optimization", "Load Balancer"],
-        "suggestions": "Markdown text listing clear steps to improve formatting, keyword density, and overall structure"
+        "atsScore": 78,
+        "missingSkills": ["Docker", "Kubernetes", "AWS"],
+        "missingKeywords": ["CI/CD", "Scalability", "Agile methodologies"],
+        "suggestions": "Markdown suggestions on formatting, style, content, and phrasing improvements."
       }
-    `;
+    `);
 
     try {
       const response = await ai.models.generateContent({
         model: this.modelName,
-        contents: prompt,
+        contents,
         config: {
           responseMimeType: 'application/json',
-          systemInstruction: 'You are an professional ATS Scanner and recruiter. Evaluate the resume text rigorously.',
+          systemInstruction: 'You are a professional ATS Scanner and recruiter. Evaluate the resume content/file rigorously.',
         },
       });
 
@@ -150,10 +166,10 @@ export class AIService {
     } catch (error) {
       console.error('Gemini Resume Analysis Error:', error);
       return {
-        atsScore: 70,
-        missingSkills: ['TypeScript', 'Testing'],
-        missingKeywords: ['Agile', 'Refactoring'],
-        suggestions: 'Failed to connect to AI server. Standard suggestions: update formatting to simple columns and add impact statements.',
+        atsScore: 65,
+        missingSkills: ['System Design', 'Docker', 'Kubernetes'],
+        missingKeywords: ['CI/CD', 'Microservices', 'Unit Testing'],
+        suggestions: 'Failed to process resume document. Ensure the PDF is not encrypted and contains readable text.',
       };
     }
   }
@@ -161,7 +177,7 @@ export class AIService {
   /**
    * Reviews GitHub portfolio details
    */
-  static async analyzePortfolio(githubUrl: string): Promise<any> {
+  static async analyzePortfolio(githubUrl: string, reposList?: any[]): Promise<any> {
     // For portfolio URL we scan repos and give recommendations
     const cleanUrl = githubUrl.replace(/\/$/, '');
     const username = cleanUrl.split('/').pop() || 'developer';
@@ -187,14 +203,24 @@ export class AIService {
       };
     }
 
+    let reposContext = '';
+    if (reposList && reposList.length > 0) {
+      reposContext = `The user's actual repositories fetched from the GitHub API are:\n` + 
+        reposList.map(r => `- Name: ${r.name}, Stars: ${r.stars}, Forks: ${r.forks}, Primary Language: ${r.primaryLanguage}, Has README: ${r.hasReadme}`).join('\n');
+    }
+
     const prompt = `
       Provide a portfolio review feedback mockup for user GitHub profile URL: "${githubUrl}".
       The user username is: "${username}".
 
+      ${reposContext}
+
+      Evaluate their repository structure, names, languages, and stars based on their actual repositories if provided. Compute an overall portfolio rating score (out of 100), and write detailed suggestions.
+
       Return a JSON conforming to:
       {
         "githubUrl": "${githubUrl}",
-        "reposCount": 15,
+        "reposCount": ${reposList && reposList.length > 0 ? reposList.length : 15},
         "languages": [
           {"name": "TypeScript", "percentage": 70},
           {"name": "Go", "percentage": 20},
@@ -207,7 +233,7 @@ export class AIService {
         "portfolioScore": 75,
         "readmeQuality": "needs_work",
         "commitActivity": "active",
-        "suggestions": "Markdown suggestions to improve README structures, repository pins, and star ratios."
+        "suggestions": "Markdown suggestions to improve README structures, repository pins, and star ratios based on their actual repositories."
       }
     `;
 

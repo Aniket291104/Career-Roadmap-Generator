@@ -25,9 +25,9 @@ import Link from 'next/link';
 const generateRoadmapSchema = z.object({
   skills: z.string().min(2, 'Please list at least a couple of your current skills'),
   goal: z.string().min(2, 'Please select or describe your target career goal'),
-  dailyStudyHours: z.coerce.number().min(1).max(24).default(2),
-  learningStyle: z.enum(['visual', 'practical', 'theoretical', 'mixed']).default('mixed'),
-  preferredLanguage: z.string().default('English'),
+  dailyStudyHours: z.number().min(1).max(24),
+  learningStyle: z.enum(['visual', 'practical', 'theoretical', 'mixed']),
+  preferredLanguage: z.string(),
 });
 
 type GenerateInput = z.infer<typeof generateRoadmapSchema>;
@@ -188,7 +188,7 @@ export default function RoadmapsPage() {
                     type="number"
                     min={1}
                     max={24}
-                    {...register('dailyStudyHours')}
+                    {...register('dailyStudyHours', { valueAsNumber: true })}
                     className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm font-medium transition-all"
                   />
                   {errors.dailyStudyHours && <p className="text-[11px] text-red-500 mt-1 font-semibold">{errors.dailyStudyHours.message}</p>}

@@ -14,7 +14,7 @@ const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['student', 'mentor']).default('student'),
+  role: z.enum(['student', 'mentor']),
 });
 
 type RegisterInput = z.infer<typeof registerSchema>;
@@ -36,8 +36,9 @@ export default function RegisterPage() {
     try {
       const res = await api.post('/auth/register', data);
       toast.success(res.data.message);
-      // Route to verification with email query
-      router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
+      // Route to verification with email query and devOtp fallback
+      const devOtpParam = res.data.devOtp ? `&devOtp=${res.data.devOtp}` : '';
+      router.push(`/verify-otp?email=${encodeURIComponent(data.email)}${devOtpParam}`);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Registration failed. Try again.');
     } finally {

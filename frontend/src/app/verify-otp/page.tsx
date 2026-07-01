@@ -23,25 +23,37 @@ function VerifyOtpContent() {
   const setUser = useUserStore((state) => state.setUser);
   
   const [email, setEmail] = useState('');
+  const [devOtp, setDevOtp] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<OtpInput>({
+    resolver: zodResolver(otpSchema),
+  });
 
   useEffect(() => {
     const emailParam = searchParams.get('email');
+    const devOtpParam = searchParams.get('devOtp');
     if (emailParam) {
       setEmail(emailParam);
     } else {
       toast.error('Email parameter missing.');
       router.push('/login');
     }
-  }, [searchParams, router]);
+    if (devOtpParam) {
+      setDevOtp(devOtpParam);
+      setValue('otp', devOtpParam);
+    }
+  }, [searchParams, router, setValue]);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<OtpInput>({
-    resolver: zodResolver(otpSchema),
-  });
+  const isDev = typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' || 
+    window.location.hostname === '127.0.0.1'
+  );
 
   const onSubmit = async (data: OtpInput) => {
     setSubmitting(true);
@@ -78,6 +90,19 @@ function VerifyOtpContent() {
           Enter the 6-digit OTP code dispatched to <span className="text-primary font-bold">{email}</span>
         </p>
       </div>
+
+      {devOtp && (
+        <div className="mb-6 p-4 rounded-lg bg-primary/10 border border-primary/20 text-center text-xs text-primary font-semibold">
+          Development Mode: Your verification OTP is <span className="underline select-all text-sm font-extrabold">{devOtp}</span>
+        </div>
+      )}
+
+      {isDev && !devOtp && (
+        <div className="mb-6 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center text-xs text-amber-600 dark:text-amber-400 font-medium">
+          <p className="font-bold mb-1">🛠️ Local Development Mode</p>
+          <p>If you don&apos;t receive the email, check your backend console logs or use the bypass code <span className="font-extrabold underline">123456</span>.</p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>

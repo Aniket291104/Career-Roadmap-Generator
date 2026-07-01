@@ -80,6 +80,7 @@ export class AuthController {
           role: user.role,
           isVerified: user.isVerified,
         },
+        ...(process.env.NODE_ENV !== 'production' && { devOtp: otp }),
       });
     } catch (error) {
       console.error('Registration Error:', error);
@@ -187,6 +188,7 @@ export class AuthController {
           status: 'verify_otp',
           message: 'Account is unverified. OTP code re-sent to your email.',
           email: user.email,
+          ...(process.env.NODE_ENV !== 'production' && { devOtp: otp }),
         });
         return;
       }
@@ -262,7 +264,10 @@ export class AuthController {
         html: emailHtml,
       });
 
-      res.status(200).json({ message: 'If email exists, a password reset link has been dispatched.' });
+      res.status(200).json({
+        message: 'If email exists, a password reset link has been dispatched.',
+        ...(process.env.NODE_ENV !== 'production' && { devLink: resetLink }),
+      });
     } catch (error) {
       console.error('Forgot Password Error:', error);
       res.status(500).json({ message: 'Internal Server Error' });

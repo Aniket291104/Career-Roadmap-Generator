@@ -38,7 +38,8 @@ export default function LoginPage() {
       
       if (res.data.status === 'verify_otp') {
         toast.info(res.data.message);
-        router.push(`/verify-otp?email=${encodeURIComponent(res.data.email)}`);
+        const devOtpParam = res.data.devOtp ? `&devOtp=${res.data.devOtp}` : '';
+        router.push(`/verify-otp?email=${encodeURIComponent(res.data.email)}${devOtpParam}`);
       } else {
         if (typeof window !== 'undefined') {
           if (res.data.accessToken) localStorage.setItem('accessToken', res.data.accessToken);

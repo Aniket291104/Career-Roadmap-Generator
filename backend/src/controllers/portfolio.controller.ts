@@ -33,10 +33,15 @@ export class PortfolioController {
 
       try {
         // Query GitHub API
+        const headers: any = {
+          'User-Agent': 'AI-Career-Roadmap-Generator-Server',
+        };
+        if (process.env.GITHUB_TOKEN) {
+          headers['Authorization'] = `token ${process.env.GITHUB_TOKEN}`;
+        }
+
         const githubRes = await axios.get(`https://api.github.com/users/${username}/repos?per_page=10&sort=updated`, {
-          headers: {
-            'User-Agent': 'AI-Career-Roadmap-Generator-Server',
-          }
+          headers
         });
 
         if (Array.isArray(githubRes.data)) {
@@ -60,7 +65,7 @@ export class PortfolioController {
       }
 
       // Run AI scanner
-      const analysis = await AIService.analyzePortfolio(githubUrl);
+      const analysis = await AIService.analyzePortfolio(githubUrl, reposList);
 
       // Overwrite analysis parameters with real GitHub API data if available
       const finalLanguages = reposList.length > 0 
