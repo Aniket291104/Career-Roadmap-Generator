@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+export let API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 // Handle configuration fallback: if NEXT_PUBLIC_API_URL was set without the '/api' suffix, append it automatically
 if (API_BASE_URL && !API_BASE_URL.endsWith('/api') && !API_BASE_URL.endsWith('/api/')) {
