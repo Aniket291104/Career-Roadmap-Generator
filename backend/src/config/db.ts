@@ -1,10 +1,21 @@
 import mongoose from 'mongoose';
 
 export const connectDB = async (): Promise<void> => {
-  const uri = process.env.MONGODB_URI;
+  let uri = process.env.MONGODB_URI;
   if (!uri) {
     console.error('MongoDB URI is not defined in environment variables.');
     process.exit(1);
+  }
+
+  // Auto-correct common typo: using "-" or "/" instead of "?" before query parameters (e.g., retryWrites)
+  if (uri.includes('retryWrites') && !uri.includes('?')) {
+    const match = uri.match(/[-/](retryWrites=true.*)$/);
+    if (match) {
+      const rest = match[1];
+      const base = uri.substring(0, uri.length - match[0].length);
+      uri = `${base}?${rest}`;
+      console.warn(`[URI Auto-correct] Corrected MONGODB_URI to end with '?${rest}'`);
+    }
   }
 
   try {
