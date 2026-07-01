@@ -81,9 +81,9 @@ export class AuthController {
           isVerified: user.isVerified,
         },
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Registration Error:', error);
-      res.status(500).json({ message: 'Internal Server Error', details: error.message || String(error) });
+      res.status(500).json({ message: 'Internal Server Error' });
     }
   }
 
