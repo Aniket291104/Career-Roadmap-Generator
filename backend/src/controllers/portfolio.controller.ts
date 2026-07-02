@@ -26,7 +26,18 @@ export class PortfolioController {
       }
 
       const { githubUrl } = parsed.data;
-      const username = githubUrl.replace(/\/$/, '').split('/').pop() || 'developer';
+      const cleanUrl = githubUrl.replace(/\/$/, '');
+      
+      let username = 'developer';
+      try {
+        const urlObj = new URL(githubUrl);
+        const paths = urlObj.pathname.split('/').filter(Boolean);
+        if (paths.length > 0) {
+          username = paths[0];
+        }
+      } catch (e) {
+        username = cleanUrl.split('/').pop() || 'developer';
+      }
 
       let reposList: any[] = [];
       let aggregatedLanguages: { [key: string]: number } = {};
@@ -60,8 +71,8 @@ export class PortfolioController {
             }
           });
         }
-      } catch (githubErr) {
-        console.warn('GitHub API failed (rate limits / offline), using fallback repository mock data.');
+      } catch (githubErr: any) {
+        console.warn('GitHub API failed:', githubErr.response?.data || githubErr.message);
       }
 
       // Run AI scanner

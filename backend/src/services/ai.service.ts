@@ -180,9 +180,53 @@ export class AIService {
   static async analyzePortfolio(githubUrl: string, reposList?: any[]): Promise<any> {
     // For portfolio URL we scan repos and give recommendations
     const cleanUrl = githubUrl.replace(/\/$/, '');
-    const username = cleanUrl.split('/').pop() || 'developer';
+    
+    // Extract username robustly
+    let username = 'developer';
+    try {
+      const urlObj = new URL(githubUrl);
+      const paths = urlObj.pathname.split('/').filter(Boolean);
+      if (paths.length > 0) {
+        username = paths[0];
+      }
+    } catch (e) {
+      username = cleanUrl.split('/').pop() || 'developer';
+    }
 
     if (isMock || !ai) {
+      if (reposList && reposList.length > 0) {
+        const noReadmeRepos = reposList.filter(r => !r.hasReadme).map(r => r.name);
+        const langCounts: Record<string, number> = {};
+        reposList.forEach(r => {
+          if (r.primaryLanguage) langCounts[r.primaryLanguage] = (langCounts[r.primaryLanguage] || 0) + 1;
+        });
+        const languages = Object.entries(langCounts).map(([name, count]) => ({
+          name,
+          percentage: Math.round((count / reposList.length) * 100)
+        })).sort((a, b) => b.percentage - a.percentage);
+
+        let suggestions = `### GitHub Portfolio Analysis\n\n`;
+        suggestions += `An automated review of your GitHub repository metrics:\n\n`;
+        if (noReadmeRepos.length > 0) {
+          suggestions += `- **Write READMEs**: The following repositories lack a description or README: ${noReadmeRepos.slice(0, 3).map(n => `\`${n}\``).join(', ')}. Adding detailed instructions will make them stand out to recruiters.\n`;
+        }
+        suggestions += `- **Code Structure**: Ensure you name projects clearly, clean up experimental forks, and document configuration steps.\n`;
+        
+        const topLang = languages[0]?.name || 'TypeScript';
+        suggestions += `- **Core Stack**: You have a strong presence of **${topLang}** repositories. Highlight this stack on your CV.`;
+
+        return {
+          githubUrl,
+          reposCount: reposList.length,
+          languages,
+          repositories: reposList,
+          portfolioScore: Math.min(70 + reposList.filter(r => r.stars > 0).length * 5 + reposList.filter(r => r.hasReadme).length * 2, 95),
+          readmeQuality: noReadmeRepos.length > 2 ? 'needs_work' : 'good',
+          commitActivity: 'active',
+          suggestions
+        };
+      }
+
       return {
         githubUrl,
         reposCount: 8,
@@ -252,6 +296,40 @@ export class AIService {
       return JSON.parse(text);
     } catch (error) {
       console.error('Gemini Portfolio Analysis Error:', error);
+
+      if (reposList && reposList.length > 0) {
+        const noReadmeRepos = reposList.filter(r => !r.hasReadme).map(r => r.name);
+        const langCounts: Record<string, number> = {};
+        reposList.forEach(r => {
+          if (r.primaryLanguage) langCounts[r.primaryLanguage] = (langCounts[r.primaryLanguage] || 0) + 1;
+        });
+        const languages = Object.entries(langCounts).map(([name, count]) => ({
+          name,
+          percentage: Math.round((count / reposList.length) * 100)
+        })).sort((a, b) => b.percentage - a.percentage);
+
+        let suggestions = `### GitHub Portfolio Analysis (Offline Mode)\n\n`;
+        suggestions += `An automated review of your GitHub repository metrics:\n\n`;
+        if (noReadmeRepos.length > 0) {
+          suggestions += `- **Write READMEs**: The following repositories lack a description or README: ${noReadmeRepos.slice(0, 3).map(n => `\`${n}\``).join(', ')}. Adding detailed instructions will make them stand out to recruiters.\n`;
+        }
+        suggestions += `- **Code Structure**: Ensure you name projects clearly, clean up experimental forks, and document configuration steps.\n`;
+        
+        const topLang = languages[0]?.name || 'TypeScript';
+        suggestions += `- **Core Stack**: You have a strong presence of **${topLang}** repositories. Highlight this stack on your CV.`;
+
+        return {
+          githubUrl,
+          reposCount: reposList.length,
+          languages,
+          repositories: reposList,
+          portfolioScore: Math.min(70 + reposList.filter(r => r.stars > 0).length * 5 + reposList.filter(r => r.hasReadme).length * 2, 95),
+          readmeQuality: noReadmeRepos.length > 2 ? 'needs_work' : 'good',
+          commitActivity: 'active',
+          suggestions
+        };
+      }
+
       return {
         githubUrl,
         reposCount: 3,
