@@ -23,13 +23,13 @@ function VerifyOtpContent() {
   const setUser = useUserStore((state) => state.setUser);
   
   const [email, setEmail] = useState('');
-  const [devOtp, setDevOtp] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<OtpInput>({
     resolver: zodResolver(otpSchema),
@@ -37,23 +37,34 @@ function VerifyOtpContent() {
 
   useEffect(() => {
     const emailParam = searchParams.get('email');
-    const devOtpParam = searchParams.get('devOtp');
     if (emailParam) {
       setEmail(emailParam);
     } else {
       toast.error('Email parameter missing.');
       router.push('/login');
     }
-    if (devOtpParam) {
-      setDevOtp(devOtpParam);
-      setValue('otp', devOtpParam);
-    }
-  }, [searchParams, router, setValue]);
+  }, [searchParams, router]);
 
-  const isDev = typeof window !== 'undefined' && (
-    window.location.hostname === 'localhost' || 
-    window.location.hostname === '127.0.0.1'
-  );
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+
+  const handleResend = async () => {
+    if (resending || countdown > 0) return;
+    setResending(true);
+    try {
+      await api.post('/auth/resend-otp', { email });
+      toast.success('Verification code re-sent to your email.');
+      setCountdown(60); // 60s cooldown
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to resend OTP. Please try again.');
+    } finally {
+      setResending(false);
+    }
+  };
 
   const onSubmit = async (data: OtpInput) => {
     setSubmitting(true);
@@ -91,19 +102,6 @@ function VerifyOtpContent() {
         </p>
       </div>
 
-      {devOtp && (
-        <div className="mb-6 p-4 rounded-lg bg-primary/10 border border-primary/20 text-center text-xs text-primary font-semibold">
-          Development Mode: Your verification OTP is <span className="underline select-all text-sm font-extrabold">{devOtp}</span>
-        </div>
-      )}
-
-      {isDev && !devOtp && (
-        <div className="mb-6 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center text-xs text-amber-600 dark:text-amber-400 font-medium">
-          <p className="font-bold mb-1">🛠️ Local Development Mode</p>
-          <p>If you don&apos;t receive the email, check your backend console logs or use the bypass code <span className="font-extrabold underline">123456</span>.</p>
-        </div>
-      )}
-
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Verification Code</label>
@@ -129,10 +127,27 @@ function VerifyOtpContent() {
         </button>
       </form>
 
-      <p className="text-center text-xs mt-6 text-muted-foreground font-medium">
-        Back to{' '}
-        <Link href="/login" className="text-primary hover:underline font-bold">Sign In</Link>
-      </p>
+      <div className="text-center text-xs mt-6 text-muted-foreground font-medium space-y-2">
+        <p>
+          Didn&apos;t receive the code?{' '}
+          {countdown > 0 ? (
+            <span className="text-primary font-bold">Resend in {countdown}s</span>
+          ) : (
+            <button
+              type="button"
+              disabled={resending}
+              onClick={handleResend}
+              className="text-primary hover:underline font-bold focus:outline-none disabled:opacity-50 cursor-pointer"
+            >
+              {resending ? 'Resending...' : 'Resend OTP'}
+            </button>
+          )}
+        </p>
+        <p>
+          Back to{' '}
+          <Link href="/login" className="text-primary hover:underline font-bold">Sign In</Link>
+        </p>
+      </div>
     </div>
   );
 }

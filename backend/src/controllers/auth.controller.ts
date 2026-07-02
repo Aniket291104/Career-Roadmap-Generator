@@ -5,7 +5,7 @@ import axios from 'axios';
 import { User } from '../models/User';
 import { generateAccessToken, generateRefreshToken, sendTokenCookies, clearTokenCookies } from '../utils/jwt';
 import { sendEmail } from '../config/mailer';
-import { registerSchema, loginSchema, verifyOtpSchema, forgotPasswordSchema, resetPasswordSchema, updateProfileSchema } from '../validators/auth.validator';
+import { registerSchema, loginSchema, verifyOtpSchema, forgotPasswordSchema, resetPasswordSchema, updateProfileSchema, resendOtpSchema } from '../validators/auth.validator';
 import { IAuthRequest } from '../middlewares/auth.middleware';
 
 /**
@@ -80,7 +80,6 @@ export class AuthController {
           role: user.role,
           isVerified: user.isVerified,
         },
-        ...(process.env.NODE_ENV !== 'production' && { devOtp: otp }),
       });
     } catch (error) {
       console.error('Registration Error:', error);
@@ -96,7 +95,9 @@ export class AuthController {
         return;
       }
 
-      const { email, otp } = parsed.data;
+      const { email: rawEmail, otp: rawOtp } = parsed.data;
+      const email = rawEmail.trim().toLowerCase();
+      const otp = rawOtp.trim();
 
       const user = await User.findOne({ email });
       if (!user) {
@@ -109,9 +110,21 @@ export class AuthController {
         return;
       }
 
-      const isBypass = otp === '123456';
+      console.log('=== DEBUG VERIFY OTP ===');
+      console.log('Input Email:', email);
+      console.log('Input OTP:', otp);
+      console.log('Database User Email:', user.email);
+      console.log('Database User OTP:', user.otp);
+      console.log('Database User OTP Expiry:', user.otpExpiry);
+      console.log('Current Date:', new Date());
+      console.log('Condition results:');
+      console.log('!user.otp:', !user.otp);
+      console.log('!user.otpExpiry:', !user.otpExpiry);
+      console.log('user.otp !== otp:', user.otp !== otp);
+      console.log('user.otpExpiry < new Date():', user.otpExpiry ? user.otpExpiry < new Date() : true);
+      console.log('========================');
 
-      if (!isBypass && (!user.otp || !user.otpExpiry || user.otp !== otp || user.otpExpiry < new Date())) {
+      if (!user.otp || !user.otpExpiry || user.otp !== otp || user.otpExpiry < new Date()) {
         res.status(400).json({ message: 'Invalid or expired OTP code' });
         return;
       }
@@ -143,6 +156,56 @@ export class AuthController {
       });
     } catch (error) {
       console.error('OTP Verification Error:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  }
+
+  static async resendOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const parsed = resendOtpSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: parsed.error.format() });
+        return;
+      }
+
+      const { email } = parsed.data;
+      const user = await User.findOne({ email });
+      if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+      }
+
+      if (user.isVerified) {
+        res.status(400).json({ message: 'Email is already verified' });
+        return;
+      }
+
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      user.otp = otp;
+      user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+      await user.save();
+
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h2 style="color: #4f46e5; text-align: center;">Verify Your Account</h2>
+          <p>Hi ${user.name},</p>
+          <p>Your new verification code is:</p>
+          <div style="font-size: 24px; font-weight: bold; text-align: center; background-color: #f3f4f6; padding: 15px; border-radius: 6px; letter-spacing: 4px; margin: 20px 0; color: #111827;">
+            ${otp}
+          </div>
+          <p style="color: #6b7280; font-size: 14px;">This code is valid for 10 minutes.</p>
+        </div>
+      `;
+
+      await sendEmail({
+        to: email,
+        subject: 'Resend Verification Code: AI Career Roadmap',
+        html: emailHtml,
+      });
+
+      res.status(200).json({ message: 'OTP code re-sent to your email successfully.' });
+    } catch (error) {
+      console.error('Resend OTP Error:', error);
       res.status(500).json({ message: 'Internal Server Error' });
     }
   }
@@ -188,7 +251,6 @@ export class AuthController {
           status: 'verify_otp',
           message: 'Account is unverified. OTP code re-sent to your email.',
           email: user.email,
-          ...(process.env.NODE_ENV !== 'production' && { devOtp: otp }),
         });
         return;
       }
@@ -266,7 +328,6 @@ export class AuthController {
 
       res.status(200).json({
         message: 'If email exists, a password reset link has been dispatched.',
-        ...(process.env.NODE_ENV !== 'production' && { devLink: resetLink }),
       });
     } catch (error) {
       console.error('Forgot Password Error:', error);
