@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
                 <Mail className="absolute left-3 top-3.5 w-4 h-4 text-muted-foreground/60" />
                 <input
                   type="email"
-                  placeholder="developer@gmail.com"
+                  placeholder="you@example.com"
                   {...register('email')}
                   className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm transition-all"
                 />
