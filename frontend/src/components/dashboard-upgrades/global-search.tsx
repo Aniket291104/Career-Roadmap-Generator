@@ -38,7 +38,7 @@ export function GlobalSearch() {
     { title: 'Backend Systems Engineering', desc: 'Node.js, databases, and microservices.', category: 'roadmaps', url: '/roadmaps', icon: Compass },
     { title: 'Task: Implement JWT Authentication', desc: 'Active security task in sprint.', category: 'tasks', url: '/tasks', icon: Kanban },
     { title: 'Task: Configure MongoDB schemas', desc: 'Database model definition task.', category: 'tasks', url: '/tasks', icon: Kanban },
-    { title: 'Resume Scan Assessment', desc: 'Review resume against ATS scores.', category: 'tools', url: '/resume-analyzer', icon: FileText },
+    { title: 'Resume Scan Assessment', desc: 'Review resume against ATS scores.', category: 'tools', url: 'https://hireboost1.vercel.app', icon: FileText },
     { title: 'GitHub Portfolio Evaluation', desc: 'Analyze real repositories.', category: 'tools', url: '/portfolio-analyzer', icon: FileText },
     { title: 'Mock Technical Interview Workspace', desc: 'Simulate developer interview quizzes.', category: 'tools', url: '/mock-interview', icon: Sparkles },
     { title: 'AI Career Chatbot Assistant', desc: 'Chat directly with career mentor.', category: 'tools', url: '/chat', icon: MessageSquare },
@@ -52,7 +52,11 @@ export function GlobalSearch() {
 
   const handleSelect = (url: string) => {
     setOpen(false);
-    router.push(url);
+    if (url.startsWith('http')) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      router.push(url);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

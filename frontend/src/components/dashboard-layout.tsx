@@ -121,7 +121,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     { name: 'AI Roadmaps', path: '/roadmaps', icon: Map },
     { name: 'Skill Tree', path: '/skill-tree', icon: Compass },
     { name: 'Task Board', path: '/tasks', icon: Kanban },
-    { name: 'Resume Scan', path: '/resume-analyzer', icon: FileText },
+    { name: 'Resume Scan', path: 'https://hireboost1.vercel.app', icon: FileText },
     { name: 'GitHub Review', path: '/portfolio-analyzer', icon: Github },
     { name: 'Mock Interview', path: '/mock-interview', icon: UserCheck },
     { name: 'AI Assistant', path: '/chat', icon: MessageSquare },
@@ -155,11 +155,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.path;
+                const isExternal = item.path.startsWith('http');
                 return (
                   <Link
                     key={item.name}
                     href={item.path}
                     onClick={() => setSidebarOpen(false)}
+                    target={isExternal ? '_blank' : undefined}
+                    rel={isExternal ? 'noopener noreferrer' : undefined}
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all
                       ${active 
