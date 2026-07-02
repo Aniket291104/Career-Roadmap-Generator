@@ -203,9 +203,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <main className="flex-1 flex flex-col min-w-0">
           
           {/* TOP BAR */}
-          <header className="h-16 border-b border-border/40 flex items-center justify-between px-6 bg-card/10 backdrop-blur z-20">
+          <header className="h-16 border-b border-border flex items-center justify-between px-6 bg-card/10 backdrop-blur z-20">
             <div className="flex items-center gap-6">
-              <h1 className="font-bold text-lg md:text-xl capitalize">
+              <h1 className="font-display font-extrabold text-lg md:text-xl capitalize text-foreground">
                 {pathname.substring(1).replace('-', ' ') || 'Dashboard'}
               </h1>
               

@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  /* Default Theme (Dark Mode by Default for Premium Tech Feel) */
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 5.9%;
+  /* Default Theme (Dark Mode by Default for Premium Tech Feel) - Replicating Ethara.AI colors */
+  --background: 240 10% 2%;
+  --foreground: 0 0% 100%;
+  --card: 240 10% 3.9%;
   --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
+  --popover: 240 10% 2%;
+  --popover-foreground: 0 0% 100%;
   --primary: 263.4 90% 60%;
   --primary-foreground: 0 0% 98%;
-  --secondary: 240 3.7% 15.9%;
+  --secondary: 240 3.7% 9%;
   --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
+  --muted: 240 3.7% 9%;
+  --muted-foreground: 240 5% 60%;
   --accent: 263.4 90% 70%;
   --accent-foreground: 0 0% 98%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
+  --border: 240 3.7% 12%; /* Very thin border (zinc-850/900 style) */
+  --input: 240 3.7% 12%;
   --ring: 263.4 90% 60%;
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 }
 
 .light,
@@ -72,7 +72,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
   
-  --font-sans: 'Outfit', 'Inter', var(--font-geist-sans), sans-serif;
+  --font-display: var(--font-dm-sans), sans-serif;
+  --font-sans: var(--font-roboto), sans-serif;
 }
 
 body {
@@ -166,4 +167,17 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* Style Select Dropdown Options for Better Contrast */
+select option {
+  background-color: #0c0c0e;
+  color: #ffffff;
+}
+
+.light select option,
+.light-theme select option,
+[data-theme='light'] select option {
+  background-color: #ffffff;
+  color: #0f0f11;
 }

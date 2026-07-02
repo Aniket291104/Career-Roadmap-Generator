@@ -1,15 +1,21 @@
 import type { Metadata } from 'next';
-import { Outfit } from 'next/font/google';
+import { DM_Sans, Roboto } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { QueryProvider } from '@/components/query-provider';
 import { Toaster } from 'sonner';
 import { CelebrationProvider } from '@/components/dashboard-upgrades/celebration-provider';
 import './globals.css';
 
-const outfit = Outfit({
+const dmSans = DM_Sans({
   subsets: ['latin'],
-  variable: '--font-outfit',
-  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-dm-sans',
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+});
+
+const roboto = Roboto({
+  subsets: ['latin'],
+  variable: '--font-roboto',
+  weight: ['300', '400', '500', '700'],
 });
 
 export const metadata: Metadata = {
@@ -35,7 +41,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#8b5cf6" />
         <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
-      <body className={`${outfit.variable} antialiased bg-background text-foreground`}>
+      <body className={`${dmSans.variable} ${roboto.variable} antialiased bg-background text-foreground`}>
         <QueryProvider>
           <ThemeProvider
             attribute="class"
