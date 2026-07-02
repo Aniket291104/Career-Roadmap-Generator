@@ -196,7 +196,7 @@ export default function RoadmapsPage() {
                 </h3>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Your Current Skills</label>
                       <input
@@ -228,7 +228,7 @@ export default function RoadmapsPage() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     <div>
                       <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Daily Study Hours</label>
                       <input
@@ -302,7 +302,7 @@ export default function RoadmapsPage() {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : roadmaps.length > 0 ? (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {roadmaps.map((mapItem) => (
               <Link 
                 key={mapItem._id}

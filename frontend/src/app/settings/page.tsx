@@ -215,7 +215,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             
             {/* PERSONAL METADATA */}
             <div className="p-6 rounded-2xl glass-card space-y-4">
@@ -265,7 +265,7 @@ export default function SettingsPage() {
               </h3>
 
               <div className="space-y-4 text-xs font-semibold">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">College</label>
                     <input

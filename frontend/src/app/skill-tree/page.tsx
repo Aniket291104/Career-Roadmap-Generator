@@ -151,11 +151,11 @@ export default function SkillTreePage() {
         </div>
 
         {/* Workspace Canvas Board */}
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Main SVG Skill Map Area */}
           <div 
-            className="lg:col-span-2 relative overflow-hidden h-[500px] border border-border/50 rounded-3xl bg-grid-mesh bg-card/5 select-none cursor-grab active:cursor-grabbing"
+            className="lg:col-span-2 relative overflow-hidden h-[350px] sm:h-[420px] lg:h-[500px] border border-border/50 rounded-3xl bg-grid-mesh bg-card/5 select-none cursor-grab active:cursor-grabbing"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -245,7 +245,7 @@ export default function SkillTreePage() {
           </div>
 
           {/* Node details sidebar panel */}
-          <div className="p-6 rounded-3xl glass-card flex flex-col justify-between min-h-[400px]">
+          <div className="p-6 rounded-3xl glass-card flex flex-col justify-between min-h-[300px] lg:min-h-[400px]">
             {selectedNode ? (
               <div className="space-y-6">
                 <div>

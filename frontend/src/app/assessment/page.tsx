@@ -225,7 +225,7 @@ export default function AssessmentPage() {
               </div>
 
               {/* Strong vs Weak List */}
-              <div className="grid md:grid-cols-2 gap-6 text-left max-w-2xl mx-auto pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-2xl mx-auto pt-4">
                 <div className="p-4 rounded-xl border border-green-500/20 bg-green-500/5 space-y-2">
                   <h4 className="text-sm font-bold text-green-500 flex items-center gap-1.5">
                     <CheckCircle className="w-4.5 h-4.5" />

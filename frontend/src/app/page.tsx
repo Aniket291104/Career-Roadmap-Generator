@@ -357,7 +357,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-2">
           {processSteps.map((step, idx) => (
             <div 
               key={idx}
@@ -413,7 +413,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feat, idx) => {
             const Icon = feat.icon;
             return (
@@ -446,7 +446,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories.map((cat, idx) => {
             const Icon = cat.icon;
             return (
@@ -474,7 +474,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* Free Tier */}
           <div className="p-8 rounded-lg border border-border bg-card/45 flex flex-col justify-between relative overflow-hidden">
             <div>

@@ -194,41 +194,41 @@ export default function RoadmapDetailPage({ params }: { params: Promise<{ id: st
         {/* TOP BAR / BACK LINK */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Link href="/roadmaps" className="p-2 border border-border bg-card/45 hover:bg-muted/40 rounded-lg text-muted-foreground hover:text-foreground transition-all">
+            <Link href="/roadmaps" className="p-2 border border-border bg-card/45 hover:bg-muted/40 rounded-lg text-muted-foreground hover:text-foreground transition-all shrink-0">
               <ChevronLeft className="w-4.5 h-4.5" />
             </Link>
             <div>
-              <h2 className="text-xl md:text-2xl font-bold">{roadmap.title}</h2>
+              <h2 className="text-lg md:text-2xl font-bold">{roadmap.title}</h2>
               <p className="text-xs text-muted-foreground mt-0.5 font-bold">Structured study guide targeting {roadmap.targetRole}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <button
               onClick={handleCalendarExport}
-              className="px-4 py-2 border border-border bg-card/20 hover:bg-muted/40 rounded-lg flex items-center gap-2 text-xs font-bold transition-all active:scale-95 cursor-pointer"
+              className="px-3 py-2 border border-border bg-card/20 hover:bg-muted/40 rounded-lg flex items-center gap-2 text-xs font-bold transition-all active:scale-95 cursor-pointer"
             >
               <Calendar className="w-4 h-4 text-primary" />
-              <span>Calendar Sync</span>
+              <span className="hidden sm:inline">Calendar Sync</span>
             </button>
 
             <button
               onClick={handleAdapt}
               disabled={adapting}
-              className="px-4 py-2 bg-primary hover:bg-primary/95 text-white rounded-lg flex items-center gap-2 text-xs font-bold transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
+              className="px-3 py-2 bg-primary hover:bg-primary/95 text-white rounded-lg flex items-center gap-2 text-xs font-bold transition-all active:scale-95 disabled:opacity-40 cursor-pointer"
             >
               {adapting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Sparkles className="w-4 h-4" />
               )}
-              <span>Adapt Roadmap</span>
+              <span className="hidden sm:inline">Adapt Roadmap</span>
             </button>
           </div>
         </div>
 
         {/* PROGRESS METRICS */}
-        <div className="p-6 rounded-2xl glass-card grid sm:grid-cols-3 gap-6 items-center">
+        <div className="p-4 md:p-6 rounded-2xl glass-card grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 items-center">
           <div className="sm:col-span-2 space-y-2">
             <div className="flex justify-between text-xs font-semibold text-muted-foreground">
               <span>Overall Roadmap Completion</span>
@@ -239,7 +239,7 @@ export default function RoadmapDetailPage({ params }: { params: Promise<{ id: st
             </div>
           </div>
 
-          <div className="flex justify-around text-center text-xs font-semibold text-muted-foreground border-l border-border/40 pl-6 h-full items-center">
+          <div className="flex justify-around text-center text-xs font-semibold text-muted-foreground sm:border-l border-border/40 sm:pl-6 pt-4 sm:pt-0 border-t sm:border-t-0 h-full items-center">
             <div>
               <Clock className="w-4.5 h-4.5 text-primary mx-auto mb-1" />
               <span>{roadmap.estimatedDuration}</span>
@@ -312,7 +312,7 @@ export default function RoadmapDetailPage({ params }: { params: Promise<{ id: st
                                   exit={{ height: 0, opacity: 0 }}
                                   className="overflow-hidden"
                                 >
-                                  <div className="grid md:grid-cols-3 gap-6 items-start pt-2">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-start pt-2">
                       
                       {/* Daily Tasks Checkbox list */}
                       <div className="md:col-span-2 p-4 rounded-xl border border-border bg-card/15 space-y-3">
