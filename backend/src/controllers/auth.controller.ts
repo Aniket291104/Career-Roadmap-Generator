@@ -65,11 +65,11 @@ export class AuthController {
         </div>
       `;
       
-      await sendEmail({
+      sendEmail({
         to: email,
         subject: 'Verify Your AI Career Roadmap Account',
         html: emailHtml,
-      });
+      }).catch((err) => console.error('Error sending registration email async:', err));
 
       res.status(201).json({
         message: 'Registration successful. OTP sent to email.',
@@ -197,11 +197,11 @@ export class AuthController {
         </div>
       `;
 
-      await sendEmail({
+      sendEmail({
         to: email,
         subject: 'Resend Verification Code: AI Career Roadmap',
         html: emailHtml,
-      });
+      }).catch((err) => console.error('Error sending resend OTP email async:', err));
 
       res.status(200).json({ message: 'OTP code re-sent to your email successfully.' });
     } catch (error) {
@@ -245,7 +245,8 @@ export class AuthController {
         await user.save();
 
         const emailHtml = `<h3>Please verify your email</h3><p>Your verification code is: <b>${otp}</b></p>`;
-        await sendEmail({ to: user.email, subject: 'Verify Your Account', html: emailHtml });
+        sendEmail({ to: user.email, subject: 'Verify Your Account', html: emailHtml })
+          .catch((err) => console.error('Error sending login OTP email async:', err));
 
         res.status(200).json({
           status: 'verify_otp',
@@ -320,11 +321,11 @@ export class AuthController {
         <p>This link will expire in 1 hour.</p>
       `;
 
-      await sendEmail({
+      sendEmail({
         to: email,
         subject: 'Reset Password: AI Career Roadmap',
         html: emailHtml,
-      });
+      }).catch((err) => console.error('Error sending forgot password email async:', err));
 
       res.status(200).json({
         message: 'If email exists, a password reset link has been dispatched.',
