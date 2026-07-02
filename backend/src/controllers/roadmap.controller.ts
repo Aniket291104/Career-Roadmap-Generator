@@ -23,6 +23,19 @@ export class RoadmapController {
 
       const { skills, goal, dailyStudyHours, learningStyle, preferredLanguage } = parsed.data;
 
+      // Limit check: free tier users can generate at most 2 roadmaps
+      const user = await User.findById(req.user.userId);
+      const isFreeTier = !user || user.subscriptionTier === 'free';
+      if (isFreeTier) {
+        const roadmapCount = await Roadmap.countDocuments({ user: req.user.userId });
+        if (roadmapCount >= 2) {
+          res.status(403).json({
+            message: 'You have reached the maximum limit of 2 free career roadmaps. Please upgrade to our Pro or Premium tier to gain access to unlimited roadmap generations!'
+          });
+          return;
+        }
+      }
+
       // Call AI Service
       const aiRoadmap = await AIService.generateRoadmap(
         skills,

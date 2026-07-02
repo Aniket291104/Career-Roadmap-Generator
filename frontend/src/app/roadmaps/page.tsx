@@ -21,6 +21,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import Link from 'next/link';
+import { useUserStore } from '@/store/user-store';
 
 const generateRoadmapSchema = z.object({
   skills: z.string().min(2, 'Please list at least a couple of your current skills'),
@@ -45,10 +46,13 @@ interface RoadmapItem {
 
 export default function RoadmapsPage() {
   const router = useRouter();
+  const user = useUserStore((state) => state.user);
   const [roadmaps, setRoadmaps] = useState<RoadmapItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [showForm, setShowForm] = useState(false);
+
+  const isLimitReached = (!user || !user.subscriptionTier || user.subscriptionTier === 'free') && roadmaps.length >= 2;
 
   const fetchRoadmaps = async () => {
     setLoading(true);
@@ -125,125 +129,170 @@ export default function RoadmapsPage() {
       <div className="space-y-6">
         
         {/* HEADER BAR */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <div>
+            <h2 className="text-xl font-bold tracking-tight">AI Career Roadmaps</h2>
             <p className="text-xs text-muted-foreground font-semibold">Track and manage your generated career steps</p>
           </div>
-          {!showForm && (
-            <button
-              onClick={() => setShowForm(true)}
-              className="px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg shadow hover:bg-primary/95 transition-all flex items-center gap-1.5 active:scale-95"
-            >
-              <Plus className="w-4.5 h-4.5" />
-              <span>Generate Roadmap</span>
-            </button>
-          )}
+          
+          <div className="flex items-center gap-3">
+            {(!user || !user.subscriptionTier || user.subscriptionTier === 'free') ? (
+              <div className="px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/25 text-yellow-600 text-xs font-bold flex items-center gap-1.5 animate-pulse">
+                <Sparkles className="w-3.5 h-3.5 text-yellow-500" />
+                <span>Free Plan: {roadmaps.length} / 2 roadmaps</span>
+              </div>
+            ) : (
+              <div className="px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/25 text-green-600 text-xs font-bold flex items-center gap-1.5 animate-pulse">
+                <Sparkles className="w-3.5 h-3.5 text-green-500" />
+                <span className="capitalize">{user.subscriptionTier} Plan: Unlimited</span>
+              </div>
+            )}
+
+            {!showForm && (
+              <button
+                onClick={() => setShowForm(true)}
+                className="px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg shadow hover:bg-primary/95 transition-all flex items-center gap-1.5 active:scale-95 shrink-0"
+              >
+                <Plus className="w-4.5 h-4.5" />
+                <span>Generate Roadmap</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* GENERATOR WIZARD FORM */}
         {showForm && (
           <div className="p-6 md:p-8 rounded-2xl glass-card relative overflow-hidden bg-gradient-to-b from-primary/5 to-transparent">
-            <h3 className="text-lg font-bold flex items-center gap-2 mb-6">
-              <Sparkles className="w-5 h-5 text-primary animate-spin-slow" />
-              <span>AI Career Advisor Setup</span>
-            </h3>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Your Current Skills</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. JavaScript, HTML, Python, basic databases"
-                    {...register('skills')}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm font-medium transition-all"
-                  />
-                  <p className="text-[10px] text-muted-foreground mt-1">Separate skills with commas</p>
-                  {errors.skills && <p className="text-[11px] text-red-500 mt-1 font-semibold">{errors.skills.message}</p>}
+            {isLimitReached ? (
+              <div className="text-center py-8 max-w-lg mx-auto space-y-4">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-yellow-500/10 text-yellow-500 mb-2">
+                  <Sparkles className="w-6 h-6 animate-pulse" />
                 </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Target Career Goal</label>
-                  <select
-                    {...register('goal')}
-                    className="w-full px-3 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm font-semibold text-muted-foreground transition-all"
+                <h3 className="text-xl font-bold tracking-tight text-foreground">Upgrade to Pro/Premium Tier</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  You have generated <span className="font-extrabold text-foreground">{roadmaps.length} / 2 roadmaps</span> allowed on the Free Plan. Upgrade to a paid plan to unlock unlimited roadmap generations, personalized AI modules, priority support, and daily learning analytics!
+                </p>
+                <div className="flex justify-center gap-3 pt-4">
+                  <Link
+                    href="/dashboard"
+                    className="px-6 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-black font-extrabold text-sm rounded-lg shadow-lg active:scale-95 transition-all"
                   >
-                    <option value="">Select target career</option>
-                    <option value="Frontend Developer">Frontend Web Developer</option>
-                    <option value="Backend Developer">Backend Web Developer</option>
-                    <option value="Full Stack Developer">Full Stack Software Engineer</option>
-                    <option value="AI Engineer">AI Engineer</option>
-                    <option value="Machine Learning Engineer">Machine Learning Engineer</option>
-                    <option value="DevOps Engineer">DevOps & Cloud Engineer</option>
-                    <option value="Cyber Security Engineer">Cyber Security Analyst</option>
-                  </select>
-                  {errors.goal && <p className="text-[11px] text-red-500 mt-1 font-semibold">{errors.goal.message}</p>}
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Daily Study Hours</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={24}
-                    {...register('dailyStudyHours', { valueAsNumber: true })}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm font-medium transition-all"
-                  />
-                  {errors.dailyStudyHours && <p className="text-[11px] text-red-500 mt-1 font-semibold">{errors.dailyStudyHours.message}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Learning Style</label>
-                  <select
-                    {...register('learningStyle')}
-                    className="w-full px-3 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm font-semibold text-muted-foreground transition-all"
+                    Explore Paid Plans
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    className="px-6 py-2.5 border border-border hover:bg-muted/40 font-semibold text-sm rounded-lg active:scale-95 transition-all text-muted-foreground"
                   >
-                    <option value="mixed">Mixed style (Standard)</option>
-                    <option value="practical">Practical hands-on projects</option>
-                    <option value="visual">Visual diagrams and video tutorials</option>
-                    <option value="theoretical">Theoretical documentation/books</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Output Language</label>
-                  <input
-                    type="text"
-                    {...register('preferredLanguage')}
-                    className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm font-medium transition-all"
-                  />
+                    Cancel
+                  </button>
                 </div>
               </div>
+            ) : (
+              <div>
+                <h3 className="text-lg font-bold flex items-center gap-2 mb-6">
+                  <Sparkles className="w-5 h-5 text-primary animate-spin-slow" />
+                  <span>AI Career Advisor Setup</span>
+                </h3>
 
-              <div className="flex gap-4 pt-2">
-                <button
-                  type="submit"
-                  disabled={generating}
-                  className="px-6 py-3 bg-primary text-white font-semibold rounded-lg text-sm shadow hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-95"
-                >
-                  {generating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Synthesizing roadmap...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4" />
-                      <span>Generate Timeline</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-5 py-3 border border-border hover:bg-muted/40 rounded-lg text-sm font-semibold transition-colors"
-                >
-                  Cancel
-                </button>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Your Current Skills</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. JavaScript, HTML, Python, basic databases"
+                        {...register('skills')}
+                        className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm font-medium transition-all"
+                      />
+                      <p className="text-[10px] text-muted-foreground mt-1">Separate skills with commas</p>
+                      {errors.skills && <p className="text-[11px] text-red-500 mt-1 font-semibold">{errors.skills.message}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Target Career Goal</label>
+                      <select
+                        {...register('goal')}
+                        className="w-full px-3 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm font-semibold text-muted-foreground transition-all"
+                      >
+                        <option value="">Select target career</option>
+                        <option value="Frontend Developer">Frontend Web Developer</option>
+                        <option value="Backend Developer">Backend Web Developer</option>
+                        <option value="Full Stack Developer">Full Stack Software Engineer</option>
+                        <option value="AI Engineer">AI Engineer</option>
+                        <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+                        <option value="DevOps Engineer">DevOps & Cloud Engineer</option>
+                        <option value="Cyber Security Engineer">Cyber Security Analyst</option>
+                      </select>
+                      {errors.goal && <p className="text-[11px] text-red-500 mt-1 font-semibold">{errors.goal.message}</p>}
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div>
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Daily Study Hours</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={24}
+                        {...register('dailyStudyHours', { valueAsNumber: true })}
+                        className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm font-medium transition-all"
+                      />
+                      {errors.dailyStudyHours && <p className="text-[11px] text-red-500 mt-1 font-semibold">{errors.dailyStudyHours.message}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Learning Style</label>
+                      <select
+                        {...register('learningStyle')}
+                        className="w-full px-3 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm font-semibold text-muted-foreground transition-all"
+                      >
+                        <option value="mixed">Mixed style (Standard)</option>
+                        <option value="practical">Practical hands-on projects</option>
+                        <option value="visual">Visual diagrams and video tutorials</option>
+                        <option value="theoretical">Theoretical documentation/books</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Output Language</label>
+                      <input
+                        type="text"
+                        {...register('preferredLanguage')}
+                        className="w-full px-4 py-3 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm font-medium transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 pt-2">
+                    <button
+                      type="submit"
+                      disabled={generating}
+                      className="px-6 py-3 bg-primary text-white font-semibold rounded-lg text-sm shadow hover:bg-primary/95 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 active:scale-95"
+                    >
+                      {generating ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Synthesizing roadmap...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          <span>Generate Timeline</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowForm(false)}
+                      className="px-5 py-3 border border-border hover:bg-muted/40 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
+            )}
           </div>
         )}
 

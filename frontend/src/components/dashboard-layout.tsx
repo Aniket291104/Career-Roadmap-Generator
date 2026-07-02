@@ -108,7 +108,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex relative">
+    <div className="h-screen w-screen bg-background text-foreground flex relative overflow-hidden">
         
         {/* Mobile Sidebar Toggle */}
         <button 
@@ -121,15 +121,15 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         {/* SIDEBAR PANEL */}
         <aside className={`
           fixed inset-y-0 left-0 z-40 w-64 glass-panel border-r border-border/40 p-6 flex flex-col justify-between
-          transform transition-transform duration-300 md:translate-x-0 md:relative
+          transform transition-transform duration-300 md:translate-x-0 md:relative md:flex-shrink-0 h-full
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
-          <div className="space-y-6">
+          <div className="space-y-6 flex flex-col min-h-0">
             {/* Logo */}
             <BrandLogo />
 
             {/* Navigation */}
-            <nav className="space-y-1">
+            <nav className="space-y-1 overflow-y-auto flex-1 pr-1">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.path;
@@ -171,7 +171,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* MAIN CONTAINER */}
-        <main className="flex-1 flex flex-col min-w-0">
+        <main className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
           
           {/* TOP BAR */}
           <header className="h-16 border-b border-border flex items-center justify-between px-6 bg-card/10 backdrop-blur z-20">

@@ -10,6 +10,7 @@ export interface IUserProfile {
   careerGoal?: string;
   currentStreak: number;
   xpPoints: number;
+  subscriptionTier?: 'free' | 'pro' | 'premium'; // user subscription plan tier
 }
 
 interface UserState {

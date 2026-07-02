@@ -95,12 +95,17 @@ export default function SkillTreePage() {
   };
 
   const unlockNode = (nodeId: string) => {
+    const targetNode = nodes.find((n) => n.id === nodeId);
+    if (!targetNode) return;
+
+    // Trigger side-effects outside of state updates
+    toast.success(`Unlocked Skill: ${targetNode.name}! Gained level 1.`);
+    triggerLevelUp(2);
+    triggerBadgeUnlocked('Skill Specialist', `Unlocked technical node ${targetNode.name} skill node`);
+
     setNodes((prev) =>
       prev.map((node) => {
         if (node.id === nodeId) {
-          toast.success(`Unlocked Skill: ${node.name}! Gained level 1.`);
-          triggerLevelUp(2);
-          triggerBadgeUnlocked('Skill Specialist', `Unlocked technical node ${node.name} skill node`);
           return { ...node, locked: false, progress: 10, level: 1 };
         }
         return node;

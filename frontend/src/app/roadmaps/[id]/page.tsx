@@ -19,6 +19,7 @@ import {
   CheckCircle,
   HelpCircle,
   FileCheck,
+  FileText,
   ChevronRight,
   Calendar,
   Sparkles,
@@ -35,6 +36,7 @@ interface DailyTask {
   description: string;
   codingPractice?: string;
   status: 'pending' | 'completed';
+  links?: ResourceLink[];
 }
 
 interface ResourceLink {
@@ -339,12 +341,60 @@ export default function RoadmapDetailPage({ params }: { params: Promise<{ id: st
                                   readOnly
                                   className="w-4 h-4 rounded text-primary focus:ring-primary mt-0.5 cursor-pointer"
                                 />
-                                <div>
+                                <div className="flex-1 min-w-0">
                                   <p className="font-bold">Day {task.dayNumber}: {task.title}</p>
                                   <p className="text-muted-foreground text-[10px] line-through-none mt-0.5">{task.description}</p>
+                                  
                                   {task.codingPractice && (
                                     <div className="mt-2 p-2 bg-muted/20 border border-border/30 rounded text-[10px] font-mono text-foreground/80">
                                       <span className="font-bold text-primary">Practice:</span> {task.codingPractice}
+                                    </div>
+                                  )}
+
+                                  {task.links && task.links.length > 0 ? (
+                                    <div className="mt-2.5 flex flex-wrap gap-1.5">
+                                      {task.links.map((link, lIdx) => (
+                                        <a
+                                          key={lIdx}
+                                          href={link.url}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          onClick={(e) => e.stopPropagation()}
+                                          className="inline-flex items-center gap-1 px-2 py-1 rounded bg-primary/10 border border-primary/25 hover:bg-primary/20 text-[9px] font-bold text-primary transition-all active:scale-95 cursor-pointer shrink-0"
+                                        >
+                                          {link.type === 'youtube' ? (
+                                            <Video className="w-3 h-3 text-red-500 shrink-0" />
+                                          ) : link.type === 'notes' ? (
+                                            <FileText className="w-3 h-3 text-yellow-500 shrink-0" />
+                                          ) : (
+                                            <ExternalLink className="w-3 h-3 shrink-0" />
+                                          )}
+                                          <span>{link.title}</span>
+                                        </a>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="mt-2.5 flex flex-wrap gap-1.5">
+                                      <a
+                                        href={`https://www.google.com/search?q=${encodeURIComponent(task.title + ' documentation')}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="inline-flex items-center gap-1 px-2 py-1 rounded bg-muted/40 border border-border/60 hover:bg-muted text-[9px] font-bold text-muted-foreground transition-all active:scale-95 cursor-pointer shrink-0"
+                                      >
+                                        <ExternalLink className="w-3 h-3 shrink-0" />
+                                        <span>Search Docs</span>
+                                      </a>
+                                      <a
+                                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(task.title + ' tutorial')}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="inline-flex items-center gap-1 px-2 py-1 rounded bg-muted/40 border border-border/60 hover:bg-muted text-[9px] font-bold text-muted-foreground transition-all active:scale-95 cursor-pointer shrink-0"
+                                      >
+                                        <Video className="w-3 h-3 text-red-500 shrink-0" />
+                                        <span>Search Video</span>
+                                      </a>
                                     </div>
                                   )}
                                 </div>
@@ -353,32 +403,34 @@ export default function RoadmapDetailPage({ params }: { params: Promise<{ id: st
                           })}
                         </div>
                       </div>
-
+ 
                       {/* Side references & project links */}
                       <div className="space-y-4">
                         
-                        {/* Curated Resources */}
-                        <div className="p-4 rounded-xl border border-border bg-card/15 space-y-3">
-                          <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wider flex items-center gap-1">
-                            <BookOpen className="w-3.5 h-3.5 text-accent" />
-                            <span>Study Guides</span>
-                          </span>
+                        {/* Curated Resources (Fallback for older roadmaps) */}
+                        {week.resources && week.resources.length > 0 && (
+                          <div className="p-4 rounded-xl border border-border bg-card/15 space-y-3">
+                            <span className="text-[10px] text-muted-foreground font-extrabold uppercase tracking-wider flex items-center gap-1">
+                              <BookOpen className="w-3.5 h-3.5 text-accent" />
+                              <span>Study Guides (Week Resources)</span>
+                            </span>
 
-                          <div className="space-y-2 text-xs font-semibold">
-                            {week.resources.map((resItem, rIdx) => (
-                              <a
-                                key={rIdx}
-                                href={resItem.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center justify-between p-2.5 rounded border border-border/40 hover:bg-muted/40 transition-colors"
-                              >
-                                <span className="truncate pr-2">{resItem.title}</span>
-                                {resItem.type === 'youtube' ? <Video className="w-3.5 h-3.5 text-red-500 shrink-0" /> : <ExternalLink className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
-                              </a>
-                            ))}
+                            <div className="space-y-2 text-xs font-semibold">
+                              {week.resources.map((resItem, rIdx) => (
+                                <a
+                                  key={rIdx}
+                                  href={resItem.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="flex items-center justify-between p-2.5 rounded border border-border/40 hover:bg-muted/40 transition-colors"
+                                >
+                                  <span className="truncate pr-2">{resItem.title}</span>
+                                  {resItem.type === 'youtube' ? <Video className="w-3.5 h-3.5 text-red-500 shrink-0" /> : resItem.type === 'notes' ? <FileText className="w-3.5 h-3.5 text-yellow-500 shrink-0" /> : <ExternalLink className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
+                                </a>
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        )}
 
                         {/* Recommended projects */}
                         {week.projects && week.projects.length > 0 && (

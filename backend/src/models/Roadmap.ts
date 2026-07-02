@@ -6,12 +6,13 @@ export interface IDailyTask {
   description: string;
   codingPractice?: string; // Coding exercise description or code prompt
   status: 'pending' | 'completed';
+  links?: IResourceLink[]; // Resource links directly associated with the daily task
 }
 
 export interface IResourceLink {
   title: string;
   url: string;
-  type: 'docs' | 'youtube' | 'course' | 'github' | 'blog' | 'book' | 'practice';
+  type: 'docs' | 'youtube' | 'course' | 'github' | 'blog' | 'book' | 'practice' | 'notes';
 }
 
 export interface IProjectBrief {
@@ -55,22 +56,23 @@ export interface IRoadmap extends Document {
   updatedAt: Date;
 }
 
+const ResourceLinkSchema = new Schema<IResourceLink>({
+  title: { type: String, required: true },
+  url: { type: String, required: true },
+  type: { 
+    type: String, 
+    enum: ['docs', 'youtube', 'course', 'github', 'blog', 'book', 'practice', 'notes'], 
+    required: true 
+  },
+});
+
 const DailyTaskSchema = new Schema<IDailyTask>({
   dayNumber: { type: Number, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
   codingPractice: { type: String },
   status: { type: String, enum: ['pending', 'completed'], default: 'pending' },
-});
-
-const ResourceLinkSchema = new Schema<IResourceLink>({
-  title: { type: String, required: true },
-  url: { type: String, required: true },
-  type: { 
-    type: String, 
-    enum: ['docs', 'youtube', 'course', 'github', 'blog', 'book', 'practice'], 
-    required: true 
-  },
+  links: { type: [ResourceLinkSchema], default: [] },
 });
 
 const ProjectBriefSchema = new Schema<IProjectBrief>({

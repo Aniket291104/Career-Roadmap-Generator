@@ -35,7 +35,8 @@ export class AuthController {
       }
 
       // Hash password
-      const salt = await bcrypt.genSalt(10);
+      const saltRounds = process.env.NODE_ENV === 'production' ? 10 : 4;
+      const salt = await bcrypt.genSalt(saltRounds);
       const hashedPassword = await bcrypt.hash(password, salt);
 
       // Generate verification OTP
@@ -357,7 +358,8 @@ export class AuthController {
       }
 
       // Hash new password
-      const salt = await bcrypt.genSalt(10);
+      const saltRounds = process.env.NODE_ENV === 'production' ? 10 : 4;
+      const salt = await bcrypt.genSalt(saltRounds);
       user.password = await bcrypt.hash(password, salt);
       user.resetPasswordToken = undefined;
       user.resetPasswordExpiry = undefined;
