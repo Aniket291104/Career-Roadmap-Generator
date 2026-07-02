@@ -24,13 +24,15 @@ export class PaymentController {
         return;
       }
 
+      const clientUrl = (process.env.CLIENT_URL || 'http://localhost:3000').replace(/\/$/, '');
+
       // If Stripe keys are mock, return a simulation link
       if (process.env.STRIPE_SECRET_KEY === undefined || process.env.STRIPE_SECRET_KEY === 'mock_stripe_key') {
         // Mock simulation success callback directly
         user.subscriptionTier = tier;
         await user.save();
         res.status(200).json({ 
-          url: `${process.env.CLIENT_URL || 'http://localhost:3000'}/dashboard?payment=simulated&tier=${tier}`,
+          url: `${clientUrl}/dashboard?payment=simulated&tier=${tier}`,
           message: 'Stripe Mock Billing Activated (Simulation Sandbox mode)' 
         });
         return;
@@ -50,8 +52,8 @@ export class PaymentController {
           },
         ],
         mode: 'subscription',
-        success_url: `${process.env.CLIENT_URL || 'http://localhost:3000'}/dashboard?success=true`,
-        cancel_url: `${process.env.CLIENT_URL || 'http://localhost:3000'}/pricing?canceled=true`,
+        success_url: `${clientUrl}/dashboard?success=true`,
+        cancel_url: `${clientUrl}/pricing?canceled=true`,
         metadata: {
           userId: user._id.toString(),
           tier,

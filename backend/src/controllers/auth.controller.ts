@@ -298,7 +298,7 @@ export class AuthController {
         return;
       }
 
-      const { email } = parsed.data;
+      const email = parsed.data.email.trim().toLowerCase();
       const user = await User.findOne({ email });
       if (!user) {
         // Obfuscate response for safety
@@ -311,7 +311,7 @@ export class AuthController {
       user.resetPasswordExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
       await user.save();
 
-      const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+      const clientUrl = (process.env.CLIENT_URL || 'http://localhost:3000').replace(/\/$/, '');
       const resetLink = `${clientUrl}/reset-password?token=${token}`;
 
       const emailHtml = `
