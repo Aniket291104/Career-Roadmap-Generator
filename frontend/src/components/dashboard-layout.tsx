@@ -15,7 +15,6 @@ import {
   MessageSquare, 
   Trophy, 
   Settings, 
-  LogOut, 
   Flame, 
   Award,
   Loader2,
@@ -77,27 +76,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       };
     }
   }, [isLoggedIn]);
-
-  const handleLogout = async () => {
-    try {
-      await api.post('/auth/logout');
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-      }
-      logout();
-      toast.success('Successfully logged out.');
-      router.push('/login');
-    } catch (error) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-      }
-      logout();
-      toast.success('Logged out.');
-      router.push('/login');
-    }
-  };
 
   if (loading) {
     return (
@@ -189,13 +167,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 <span className="text-[10px] text-muted-foreground uppercase font-semibold">{user?.role}</span>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-xl text-sm font-semibold transition-all"
-            >
-              <LogOut className="w-4.5 h-4.5" />
-              <span>Sign Out</span>
-            </button>
           </div>
         </aside>
 

@@ -17,9 +17,11 @@ import {
   Loader2, 
   Sun, 
   Moon,
-  Save
+  Save,
+  LogOut
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
 
 const updateProfileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -43,7 +45,8 @@ const updateProfileSchema = z.object({
 type SettingsInput = z.infer<typeof updateProfileSchema>;
 
 export default function SettingsPage() {
-  const { user, setUser } = useUserStore();
+  const { user, setUser, logout } = useUserStore();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [submitting, setSubmitting] = useState(false);
 
@@ -106,6 +109,27 @@ export default function SettingsPage() {
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Payment gateway initialization failed.');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout');
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      }
+      logout();
+      toast.success('Successfully logged out.');
+      router.push('/login');
+    } catch (error) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      }
+      logout();
+      toast.success('Logged out.');
+      router.push('/login');
     }
   };
 
@@ -395,8 +419,24 @@ export default function SettingsPage() {
               )}
             </button>
           </div>
-
         </form>
+
+        {/* SIGN OUT SECTION */}
+        <div className="p-6 rounded-2xl glass-card flex justify-between items-center bg-card/25 border border-red-500/10 mt-6">
+          <div>
+            <h4 className="font-bold text-sm text-red-500">Sign Out</h4>
+            <p className="text-[10px] text-muted-foreground mt-0.5 font-bold">Terminate your session and log out of this device</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="px-5 py-2.5 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl hover:bg-red-500 hover:text-white font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out Session</span>
+          </button>
+        </div>
 
       </div>
     </DashboardLayout>
